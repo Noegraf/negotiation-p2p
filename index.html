@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Negotiation App</title>
+    <title>TratoHecho</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <h1>Job Negotiation App</h1>
+        <h1>TratoHecho</h1>
     </header>
 
     <main>
@@ -21,43 +21,64 @@
                 <label for="employer-price">Proposed Price:</label>
                 <input type="number" id="employer-price" name="employer-price" placeholder="Enter your offer" required>
 
+                <label for="employer-email">Your Email:</label>
+                <input type="email" id="employer-email" name="employer-email" placeholder="Enter your email" required>
+
                 <button type="submit">Submit Offer</button>
             </form>
         </section>
 
-        <section id="postulant-section">
+        <section id="postulant-section" style="display:none;">
             <h2>Postulant Offer</h2>
             <form id="postulant-form">
                 <label for="postulant-price">Desired Price:</label>
                 <input type="number" id="postulant-price" name="postulant-price" placeholder="Enter your desired price" required>
 
+                <label for="postulant-email">Your Email:</label>
+                <input type="email" id="postulant-email" name="postulant-email" placeholder="Enter your email" required>
+
                 <button type="submit">Submit Offer</button>
             </form>
         </section>
 
-        <section id="result-section">
+        <section id="result-section" style="display:none;">
             <h2>Negotiation Result</h2>
             <div id="result"></div>
+            <div id="contact-details"></div>
             <button id="reset-btn">Start Over</button>
         </section>
     </main>
 
     <script>
-        // JavaScript para manejar la lógica de cálculo
+        // JavaScript para manejar la lógica de cálculo y contacto
         document.getElementById('employer-form').addEventListener('submit', function(event) {
             event.preventDefault();
             const employerPrice = parseFloat(document.getElementById('employer-price').value);
+            const employerEmail = document.getElementById('employer-email').value;
+            localStorage.setItem('employerPrice', employerPrice);
+            localStorage.setItem('employerEmail', employerEmail);
             document.getElementById('employer-section').style.display = 'none';
             document.getElementById('postulant-section').style.display = 'block';
         });
 
         document.getElementById('postulant-form').addEventListener('submit', function(event) {
             event.preventDefault();
-            const employerPrice = parseFloat(document.getElementById('employer-price').value);
+            const employerPrice = parseFloat(localStorage.getItem('employerPrice'));
             const postulantPrice = parseFloat(document.getElementById('postulant-price').value);
+            const postulantEmail = document.getElementById('postulant-email').value;
             const finalPrice = (employerPrice + postulantPrice) / 2;
+
+            const employerEmail = localStorage.getItem('employerEmail');
+            const contactLinkEmployer = `mailto:${employerEmail}?subject=Agreement on Job Offer&body=The final agreed price is $${finalPrice.toFixed(2)}. Please contact ${postulantEmail} to finalize the agreement.`;
+            const contactLinkPostulant = `mailto:${postulantEmail}?subject=Agreement on Job Offer&body=The final agreed price is $${finalPrice.toFixed(2)}. Please contact ${employerEmail} to finalize the agreement.`;
+
             document.getElementById('postulant-section').style.display = 'none';
             document.getElementById('result').innerText = `Final Agreed Price: $${finalPrice.toFixed(2)}`;
+            document.getElementById('contact-details').innerHTML = `
+                <p>Contact the other party:</p>
+                <a href="${contactLinkEmployer}">Click here to email the employer</a><br>
+                <a href="${contactLinkPostulant}">Click here to email the postulant</a>
+            `;
             document.getElementById('result-section').style.display = 'block';
         });
 
@@ -66,6 +87,7 @@
             document.getElementById('result-section').style.display = 'none';
             document.getElementById('employer-form').reset();
             document.getElementById('postulant-form').reset();
+            localStorage.clear();
         });
     </script>
 </body>
